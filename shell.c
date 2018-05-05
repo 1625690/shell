@@ -13,11 +13,11 @@ int main(){
 		}
 		pid_t id = fork();
 		if(!id){
-			char * args[2] = strdup(cmd);
+			char * args[2];
 			args[0] = strdup(cmd);
 			args[1] = NULL;
 			execvp(args[0], args);
-		}else if(){
+		}else{
 			wait(NULL);
 		}	
 	}
