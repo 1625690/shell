@@ -5,21 +5,33 @@
 
 int main()
 {
-   char str[] = "Hola   Separar   Palabras   ajá";
-   char str2[] = "Este es   | un comando     |    con pipelines | as";
+   char str2[] = "Este es   | un comando     |    con pipelines | ok";
    const char s[2] = " ";
    char *token;
    
-   /* obtiene el primer token*/
+   /* obtiene el primer comando quitando los espacios vacios*/
    token = strtok(str2, s);
    
-   /* Recorre el puntero de tokens*/
-   while( token != NULL ) {      
-      
-      if(strcmp("|", token)){
-         printf( " %s\n", token );
+   /* error si el primer char es | */
+   if(!strcmp("|", token)){
+      printf("No se puede empezar un comando con | ");
+   }else{
+      /* Recorre la linea de comando */
+      while( token != NULL ) {           
+         /* Guarda el comando */
+         char *cmd = token;
+         /* puntero que se usara para recorrer el comando */
+         char *p;
+         /* Recorre el comando letra por letra */
+         for(p = cmd; *p != '\0'; p++){
+               if(strcmp("|", token)){
+                  printf("%c",*p);
+               }
+        }
+        /* incremento del puntero que recorre la linea */
+        token = strtok(NULL, s);
       }
-      token = strtok(NULL, s);
    }
+ 
     return 0;
 }
