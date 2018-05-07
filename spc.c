@@ -5,16 +5,20 @@
 
 int main()
 {
-   char str[80] = "Hola   Separar   Palabras   ajá";
+   char str[] = "Hola   Separar   Palabras   ajá";
+   char str2[] = "Este es   | un comando     |    con pipelines | as";
    const char s[2] = " ";
    char *token;
    
    /* obtiene el primer token*/
-   token = strtok(str, s);
+   token = strtok(str2, s);
    
    /* Recorre el puntero de tokens*/
-   while( token != NULL ) {
-      printf( " %s\n", token );    
+   while( token != NULL ) {      
+      
+      if(strcmp("|", token)){
+         printf( " %s\n", token );
+      }
       token = strtok(NULL, s);
    }
     return 0;
