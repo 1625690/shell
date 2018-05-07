@@ -3,20 +3,35 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-#include "spc.h"
+#include <fcntl.h>
+
 
 char *args[99];
 char comando[90];
 int pid;
 
-void ejecutar(){
-     char *var;
-     var = strtok(comando, " ");
+void leerComando(){
+     char *var = strtok(comando," ") ;
      for (int i =0; var!=NULL; i++){
          args[i]=var;
          var= strtok(NULL, " ");
      }
      execvp(args[0], args);
+}
+
+void comandoSimple(){
+     char *var;
+     const char op[] = " ";
+     var = strtok(comando, op);
+     leerComando();
+}
+
+void redireccion(){
+    char *archivo = strtok(comando, ">");
+    archivo = strtok(NULL, ">");
+    close(STDOUT_FILENO);
+    open(archivo, O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
+    leerComando();
 }
 
 int main(int argc, char const *argv[]){
@@ -29,7 +44,7 @@ int main(int argc, char const *argv[]){
 	pid = fork();
 
 	if (!pid){
-	    ejecutar();
+	    redireccion();
 	}else{
 	    wait(NULL);
 	}
