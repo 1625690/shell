@@ -3,23 +3,33 @@
 #include <string.h>
 #include <unistd.h>
 
+void ejecutar(char cmd[]){
+	 char *args[99];
+     char *var = strtok(cmd, " ");     
+     for (int i =0; var!=NULL; i++){
+     	puts(var);
+         args[i]=var;
+         var= strtok(NULL, " ");
+     }
+     execvp(args[0], args);
+}
+
 int main(){
-	char cmd[80];
+	
+	char cmd[90];
 	while(1){
 		printf("$ ");
-		scanf("%s",cmd);
+		scanf(" %99[^\n]",cmd);
 		if(!strcmp("exit", cmd)){
 			break;
 		}
 		pid_t id = fork();
 		if(!id){
-			char * args[2];
-			args[0] = strdup(cmd);
-			args[1] = NULL;
-			execvp(args[0], args);
+            ejecutar(cmd);
 		}else{
 			wait(NULL);
 		}	
 	}
 	return 0;
 }
+
