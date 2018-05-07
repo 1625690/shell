@@ -5,7 +5,7 @@
 
 int main()
 {
-   char str2[] = "Este es   | un comando     |    con pipelines | ok";
+   char str2[] = "Estees|  uncomando|  con pipelines |ok";
    const char s[2] = " ";
    char *token;
    
@@ -22,16 +22,17 @@ int main()
          char *cmd = token;
          /* puntero que se usara para recorrer el comando */
          char *p;
+         char *ins;
+         char **linea;
          /* Recorre el comando letra por letra */
          for(p = cmd; *p != '\0'; p++){
-               if(strcmp("|", token)){
-                  printf("%c",*p);
-               }
+             if(*p != '|'){
+
+             }
         }
         /* incremento del puntero que recorre la linea */
         token = strtok(NULL, s);
       }
    }
- 
     return 0;
 }
