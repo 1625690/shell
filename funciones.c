@@ -20,9 +20,6 @@ void leerComando(){
 }
 
 void comandoSimple(){
-     char *var;
-     const char op[] = " ";
-     var = strtok(comando, op);
      leerComando();
 }
 
@@ -30,7 +27,7 @@ void redireccion(){
     char *archivo = strtok(comando, ">");
     archivo = strtok(NULL, ">");
     close(STDOUT_FILENO);
-    open(archivo, O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
+    open(archivo, O_EXCL|O_CREAT|O_WRONLY, S_IRWXU);
     leerComando();
 }
 
@@ -44,7 +41,9 @@ int main(int argc, char const *argv[]){
 	pid = fork();
 
 	if (!pid){
-	    redireccion();
+	    //leerComando();
+	    comandoSimple();
+	    //redireccion();
 	}else{
 	    wait(NULL);
 	}
