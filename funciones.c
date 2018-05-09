@@ -10,6 +10,34 @@ char *args[99];
 char comando[90];
 int pid;
 
+void rdpipe(){
+	
+	
+	int p[2];
+	char * ln = 
+	char * args[99] = strtok(comando," ") ;
+	char * args1[99] = strtok(NULL," ") ;
+
+	pipe(p);
+	pid_t id = fork();
+
+	if (id==0){
+		dup2(p[1], STDOUT_FILENO);
+    		close(p[0]);
+    		leercomando();
+	}
+	pid_t id1 = fork();
+	if(id1 == 0){
+		dup2(p[0], STDIN_FILENO);
+    		close(p[1]);
+    		execvp(args1[0], args1);
+	}else{
+		wait(NULL);
+	}
+	close(p[0]);
+	close(p[1]);
+}
+
 void leerComando(){
      char *var = strtok(comando," ") ;
      for (int i =0; var!=NULL; i++){
