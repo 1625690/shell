@@ -1,90 +1,114 @@
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
+
+#include <stdio.h>                                                               
+#include <stdlib.h>                                                                
+#include <unistd.h>                                                                
+#include <string.h>                                                                
 #include <sys/wait.h>
-#include <fcntl.h>
+#include <fcntl.h>    
 
-
-char *args[99];
-char comando[90];
 int pid;
+char *args[99];
 
-void rdpipe(){
-	
-	
-	int p[2],k,n;
-
-    char *primeraParte = strtok(comando, "|");
-    char *segundaParte = strtok(NULL, "|");
-    
-    
-    char *args1[80];
-    char *args2[80];
-
-    char *var;
-    var = strtok(primeraParte," ") ;
+void llenarArray(char *argsL[], char comandoL[]){
+	int k;
+    char *var = strtok(comandoL," ") ;
     for (int i =0; var!=NULL; i++){
-        args1[i]=var;
+        argsL[i]=var;
         k=i;
         var= strtok(NULL, " ");
     }
+    argsL[k+1]= NULL;
+}
 
-    args1[k+1] = NULL;
-    printf("Flags1: %s\n",args1[0]);
+
+void rdpipe(char comando[]){
+		
+	int p[2];
+
+    char *primeraParte = strtok(comando, "|");
+    char *segundaParte = strtok(NULL, "|");    
+    char *args1[90];
+    char *args2[90];
+    char *r = strstr(segundaParte, ">");
+
+    llenarArray(args1, primeraParte);
+
+	if(r!=NULL){
+		r = strtok(segundaParte, ">"); 
+		r = strtok(NULL, ">"); 
+		close(STDOUT_FILENO);
+    	open(r, O_EXCL|O_CREAT|O_WRONLY, S_IRWXU);
+		llenarArray(args2, segundaParte);		
+		
+	}else{
+		llenarArray(args2, segundaParte);
+	}
 
 
-    var = strtok(segundaParte," ") ;
-    for (int i =0; var!=NULL; i++){
-        args2[i]=var;
-        n=i;
-        var= strtok(NULL, " ");
-    }
 
-    args2[n+1] = NULL;
-    printf("Flags2: %s\n", args2[0]);
-	pipe(p);
+
+    pipe(p);
 	pid_t id = fork();
 
 	if (id==0){
-		printf("%s\n",primeraParte);
-		dup2(p[1], STDOUT_FILENO);
     	close(p[0]);
+		dup2(p[1], STDOUT_FILENO);
   		execvp(args1[0], args1);
+
 	}else{
 		wait(NULL);
-		printf("%s\n", segundaParte);
 		dup2(p[0], STDIN_FILENO);
     	close(p[1]);
     	execvp(args2[0], args2);
 	}
+
 	close(p[0]);
 	close(p[1]);
 }
 
-void leerComando(){
-     char *var = strtok(comando," ") ;
-     for (int i =0; var!=NULL; i++){
-         args[i]=var;
-         var= strtok(NULL, " ");
-     }
-     execvp(args[0], args);
+
+
+void comandoSimple(char comando[]){
+    char *var = strtok(comando," ") ;
+    for (int i =0; var!=NULL; i++){
+        args[i]=var;
+        var= strtok(NULL, " ");
+    }
+    execvp(args[0], args);
 }
 
-void comandoSimple(){
-     leerComando();
-}
 
-void redireccion(){
+void redireccion(char comando[]){
     char *archivo = strtok(comando, ">");
     archivo = strtok(NULL, ">");
     close(STDOUT_FILENO);
     open(archivo, O_EXCL|O_CREAT|O_WRONLY, S_IRWXU);
-    leerComando();
+    char *var = strtok(comando," ") ;
+    for (int i =0; var!=NULL; i++){
+        args[i]=var;
+        var= strtok(NULL, " ");
+    }
+    execvp(args[0], args);
+}
+
+void ejecutarComando(char comando[]){
+	char *aux =strstr(comando, "|");
+	char *aux1 =strstr(comando, ">");
+	if (aux!=NULL){
+		rdpipe(comando);
+	}else if(aux1!=NULL){
+		redireccion(comando);
+	}else{
+		comandoSimple(comando);
+	}
 }
 
 int main(int argc, char const *argv[]){
+	
+	char comando[90];
+
    while (1){
+
 	scanf(" %99[^\n]",comando);
 	if (!strcmp("exit",comando)){
 	   break;
@@ -93,14 +117,10 @@ int main(int argc, char const *argv[]){
 	pid = fork();
 
 	if (!pid){
-		rdpipe();
-	    //leerComando();
-	    //comandoSimple();
-	    //redireccion();
+		ejecutarComando(comando);
 	}else{
 	    wait(NULL);
 	}
     }
    return 0;
 }
-
