@@ -13,26 +13,50 @@ int pid;
 void rdpipe(){
 	
 	
-	int p[2];
-	char * ln = 
-	char * args[99] = strtok(comando," ") ;
-	char * args1[99] = strtok(NULL," ") ;
+	int p[2],k,n;
 
+    char *primeraParte = strtok(comando, "|");
+    char *segundaParte = strtok(NULL, "|");
+    
+    
+    char *args1[80];
+    char *args2[80];
+
+    char *var;
+    var = strtok(primeraParte," ") ;
+    for (int i =0; var!=NULL; i++){
+        args1[i]=var;
+        k=i;
+        var= strtok(NULL, " ");
+    }
+
+    args1[k+1] = NULL;
+    printf("Flags1: %s\n",args1[0]);
+
+
+    var = strtok(segundaParte," ") ;
+    for (int i =0; var!=NULL; i++){
+        args2[i]=var;
+        n=i;
+        var= strtok(NULL, " ");
+    }
+
+    args2[n+1] = NULL;
+    printf("Flags2: %s\n", args2[0]);
 	pipe(p);
 	pid_t id = fork();
 
 	if (id==0){
+		printf("%s\n",primeraParte);
 		dup2(p[1], STDOUT_FILENO);
-    		close(p[0]);
-    		leercomando();
-	}
-	pid_t id1 = fork();
-	if(id1 == 0){
-		dup2(p[0], STDIN_FILENO);
-    		close(p[1]);
-    		execvp(args1[0], args1);
+    	close(p[0]);
+  		execvp(args1[0], args1);
 	}else{
 		wait(NULL);
+		printf("%s\n", segundaParte);
+		dup2(p[0], STDIN_FILENO);
+    	close(p[1]);
+    	execvp(args2[0], args2);
 	}
 	close(p[0]);
 	close(p[1]);
@@ -69,8 +93,9 @@ int main(int argc, char const *argv[]){
 	pid = fork();
 
 	if (!pid){
+		rdpipe();
 	    //leerComando();
-	    comandoSimple();
+	    //comandoSimple();
 	    //redireccion();
 	}else{
 	    wait(NULL);
